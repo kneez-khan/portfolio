@@ -13,8 +13,14 @@ export type Project = {
   note?: string;
 };
 
-// Contact links: leave empty until real URLs are provided.
-export const CONTACT = { email: "", linkedin: "", github: "" };
+// Contact details — edit these values to update every link on the site.
+export const CONTACT = {
+  email: "kneezkhan12@gmail.com",
+  phone: "03316443907",
+  github: "https://github.com/kneez-khan",
+  // Paste the real LinkedIn profile URL here to activate the LinkedIn button.
+  linkedin: "",
+};
 
 export const NAV = [
   { id: "home", label: "Home" },
