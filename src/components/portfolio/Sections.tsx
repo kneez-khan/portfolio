@@ -180,7 +180,7 @@ export function Contact() {
     { label: "LINKEDIN", href: CONTACT.linkedin, Icon: Linkedin },
     { label: "GITHUB", href: CONTACT.github, Icon: Github },
   ];
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const subject = encodeURIComponent(`Portfolio enquiry from ${String(data.get("name") ?? "")}`);
