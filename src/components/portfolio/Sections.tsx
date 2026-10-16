@@ -174,19 +174,34 @@ export function Certifications() {
 
 export function Contact() {
   const [note, setNote] = useState("");
+  const [sending, setSending] = useState(false);
   const links = [
     { label: CONTACT.email, href: `mailto:${CONTACT.email}`, Icon: Mail },
     { label: CONTACT.phone, href: `tel:${CONTACT.phone}`, Icon: Phone },
     { label: "LINKEDIN", href: CONTACT.linkedin, Icon: Linkedin },
     { label: "GITHUB", href: CONTACT.github, Icon: Github },
   ];
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const subject = encodeURIComponent(`Portfolio enquiry from ${String(data.get("name") ?? "")}`);
-    const body = encodeURIComponent(`${String(data.get("message") ?? "")}\n\nFrom: ${String(data.get("name") ?? "")}\nReply to: ${String(data.get("email") ?? "")}`);
-    window.location.href = `mailto:${CONTACT.email}?subject=${subject}&body=${body}`;
-    setNote("Your email app will open with this message. Send it there to complete your enquiry.");
+    const form = e.currentTarget;
+    setSending(true);
+    setNote("");
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/kneezkhan12@gmail.com", {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(form),
+      });
+      if (res.ok) {
+        form.reset();
+        setNote("Thank you! Your message has been sent.");
+      } else {
+        setNote("Something went wrong. Please email me directly.");
+      }
+    } catch {
+      setNote("Network error. Please email me directly.");
+    }
+    setSending(false);
   };
   return (
     <Section id="contact" eyebrow="09 — Contact" title="Get in touch">
@@ -214,7 +229,7 @@ export function Contact() {
             <label htmlFor="message" className="mb-1.5 block text-sm font-semibold">Message</label>
             <textarea id="message" name="message" rows={5} required className="w-full resize-none rounded-lg border border-input bg-background px-4 py-3 outline-none focus:border-primary" />
           </div>
-          <Button type="submit" className="h-12 w-full">Compose Email <ArrowUpRight /></Button>
+          <Button type="submit" disabled={sending} className="h-12 w-full">{sending ? "Sending..." : "Send Message"} <ArrowUpRight /></Button>
           {note && <p role="status" className="text-sm text-muted-foreground">{note}</p>}
         </form>
       </div>
