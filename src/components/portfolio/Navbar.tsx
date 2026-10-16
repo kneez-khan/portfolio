@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { NAV } from "@/lib/portfolio-data";
 
 export function Navbar() {
@@ -22,7 +23,7 @@ export function Navbar() {
     <header className="fixed inset-x-0 top-0 z-40 px-4 pt-3">
       <nav
         aria-label="Primary"
-        className="mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full border border-border bg-background/70 px-5 backdrop-blur-xl"
+        className="mx-auto flex h-14 max-w-6xl items-center justify-between rounded-lg border border-border bg-background/90 px-5 backdrop-blur-xl"
       >
         <a href="#home" className="font-display text-lg font-extrabold tracking-[0.2em]">
           KNEEZ<span className="text-primary">.</span>
@@ -42,14 +43,15 @@ export function Navbar() {
             </li>
           ))}
         </ul>
-        <button
-          className="rounded-full p-2 lg:hidden"
+        <Button
+          variant="ghost" size="icon"
+          className="lg:hidden"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
         >
           {open ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
+        </Button>
       </nav>
       {open && (
         <ul className="panel mx-auto mt-2 max-w-6xl p-3 lg:hidden">

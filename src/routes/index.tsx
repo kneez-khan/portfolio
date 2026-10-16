@@ -4,7 +4,7 @@ import { Hero } from "@/components/portfolio/Hero";
 import { Projects } from "@/components/portfolio/Projects";
 import { About, Skills, Experience, Thesis, Education, Achievements, Certifications, Contact, Footer } from "@/components/portfolio/Sections";
 
-const TITLE = "Kneez Fatima — Data Analyst & Machine Learning Enthusiast";
+const TITLE = "Kneez Fatima — Data Analyst | Machine Learning";
 const DESC = "Portfolio of Kneez Fatima: data analysis, machine learning and computer vision projects built with Python, Pandas, SQL and Scikit-learn.";
 
 export const Route = createFileRoute("/")({

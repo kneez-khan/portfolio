@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Activity, Award, BookOpen, Cpu, GraduationCap, Layers, Mail, Users, Github, Linkedin, BadgeCheck, Plus } from "lucide-react";
+import { Activity, Award, BookOpen, Cpu, GraduationCap, Layers, Mail, Users, Github, Linkedin, Phone, ArrowUpRight } from "lucide-react";
 import { Section } from "./Section";
-import { ACHIEVEMENTS, CONTACT, EXPERIENCE, SKILLS, THESIS_FLOW } from "@/lib/portfolio-data";
+import { Button } from "@/components/ui/button";
+import { ACHIEVEMENTS, CONTACT, EXPERIENCE, SKILLS, THESIS_FLOW, PROJECTS } from "@/lib/portfolio-data";
 
 export function About() {
   const info = [
@@ -16,9 +17,9 @@ export function About() {
         <div className="reveal space-y-5 text-lg leading-relaxed text-muted-foreground">
           <p>I am a technology professional developing my career around data analytics, machine learning, and practical AI solutions. I enjoy transforming raw data into useful insights and building models that solve real problems.</p>
           <p>My work combines analytical thinking with technical implementation, using Python, Pandas, SQL, machine learning algorithms, visualization, and modern development tools.</p>
-          <p>I am continuously expanding my expertise through academic projects, professional experience, certifications, and hands-on machine learning work.</p>
+          <p>My experience also includes UI/UX design and teaching — bringing attention to usability, clear communication, and structured problem-solving.</p>
         </div>
-        <dl className="panel reveal divide-y divide-border">
+        <dl className="reveal divide-y divide-border border-y border-border">
           {info.map(([k, v]) => (
             <div key={k} className="p-5">
               <dt className="eyebrow">{k}</dt>
@@ -82,10 +83,11 @@ export function Experience() {
 }
 
 export function Thesis() {
-  const metrics = [["YOLO Accuracy", "94.1%", 94.1], ["Transformer Accuracy", "81.17%", 81.17], ["Combined Accuracy", "95.01%", 95.01]] as const;
+  const thesis = PROJECTS.find(project => project.id === "violence");
+  const metrics = thesis?.metrics ?? [];
   return (
     <Section id="thesis" eyebrow="05 — Research" title="Thesis & AI Research">
-      <div className="panel reveal overflow-hidden">
+      <div className="reveal overflow-hidden border-y border-border">
         <div className="border-b border-border p-7 md:p-10">
           <h3 className="text-2xl font-bold uppercase md:text-3xl">AI-Based Violence Detection <span className="text-gradient">and Video Summarization</span></h3>
           <p className="mt-4 max-w-3xl text-lg leading-relaxed text-muted-foreground">
@@ -108,15 +110,15 @@ export function Thesis() {
             <line x1="10" y1="10" x2="890" y2="10" stroke="var(--primary)" strokeOpacity=".6" className="animate-dash" />
           </svg>
         </div>
-        <div className="grid gap-px border-t border-border bg-border md:grid-cols-3">
-          {metrics.map(([l, v, p]) => (
-            <div key={l} className="bg-surface p-7">
-              <p className="eyebrow">{l}</p>
-              <p className="mt-2 font-display text-4xl font-bold">{v}</p>
-              <div className="mt-4 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${p}%` }} /></div>
+        <div className="grid gap-px border-t border-border bg-border md:grid-cols-2">
+          {metrics.map(({ label, value }) => (
+            <div key={label} className="bg-surface p-7">
+              <p className="eyebrow">{label}</p>
+              <p className="mt-2 font-display text-4xl font-bold">{value}</p>
             </div>
           ))}
         </div>
+        <p className="py-6 text-sm leading-relaxed text-muted-foreground">Dataset: {thesis?.dataset}. {thesis?.note}</p>
       </div>
     </Section>
   );
@@ -159,21 +161,13 @@ export function Achievements() {
 }
 
 export function Certifications() {
-  const areas = ["Data Analytics", "Machine Learning", "Computer Vision"];
   return (
-    <Section eyebrow="08 — Credentials" title="Certifications & Learning" intro="Verified certificates will be listed here. Current learning focus areas:">
-      <div className="grid gap-5 md:grid-cols-3">
-        {areas.map((a) => (
-          <div key={a} className="panel reveal flex flex-col p-7">
-            <BadgeCheck className="size-7 text-violet" />
-            <h3 className="mt-4 text-lg font-bold">{a}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">Continuous learning area</p>
-            <div className="mt-6 flex items-center gap-2 rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground">
-              <Plus className="size-4" /> Certificate to be added
-            </div>
-          </div>
+    <Section eyebrow="08 — Development" title="Continued Learning">
+      <ul className="grid gap-5 md:grid-cols-3">
+        {["Data Analytics", "Machine Learning", "Computer Vision"].map(area => (
+          <li key={area} className="border-l border-border pl-5 py-3"><BookOpen className="mb-4 size-5 text-violet" /><h3 className="text-lg font-semibold">{area}</h3><p className="mt-2 text-sm text-muted-foreground">Ongoing study and hands-on project work.</p></li>
         ))}
-      </div>
+      </ul>
     </Section>
   );
 }
@@ -181,30 +175,35 @@ export function Certifications() {
 export function Contact() {
   const [note, setNote] = useState("");
   const links = [
-    { label: "EMAIL ME", href: CONTACT.email ? `mailto:${CONTACT.email}` : "", Icon: Mail },
+    { label: CONTACT.email, href: `mailto:${CONTACT.email}`, Icon: Mail },
+    { label: CONTACT.phone, href: `tel:${CONTACT.phone}`, Icon: Phone },
     { label: "LINKEDIN", href: CONTACT.linkedin, Icon: Linkedin },
     { label: "GITHUB", href: CONTACT.github, Icon: Github },
   ];
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setNote("Thanks! The form isn't connected yet, so this message was not sent.");
+    const data = new FormData(e.currentTarget);
+    const subject = encodeURIComponent(`Portfolio enquiry from ${String(data.get("name") ?? "")}`);
+    const body = encodeURIComponent(`${String(data.get("message") ?? "")}\n\nFrom: ${String(data.get("name") ?? "")}\nReply to: ${String(data.get("email") ?? "")}`);
+    window.location.href = `mailto:${CONTACT.email}?subject=${subject}&body=${body}`;
+    setNote("Your email app will open with this message. Send it there to complete your enquiry.");
   };
   return (
-    <Section id="contact" eyebrow="09 — Contact" title="Let's build something meaningful">
+    <Section id="contact" eyebrow="09 — Contact" title="Get in touch">
       <div className="grid gap-10 lg:grid-cols-2">
         <div className="reveal">
           <p className="text-lg leading-relaxed text-muted-foreground">I am open to opportunities in data analytics, machine learning, AI, and technology-driven projects.</p>
           <div className="mt-8 flex flex-wrap gap-3">
-            {links.map(({ label, href, Icon }) =>
-              href ? (
-                <a key={label} href={href} target="_blank" rel="noreferrer" className={label === "EMAIL ME" ? "btn-primary" : "btn-ghost"}><Icon className="size-4" />{label}</a>
-              ) : (
-                <span key={label} title="Link coming soon" aria-disabled="true" className={`${label === "EMAIL ME" ? "btn-primary" : "btn-ghost"} cursor-not-allowed opacity-60`}><Icon className="size-4" />{label}</span>
-              ),
-            )}
+            {links.map(({ label, href, Icon }) => href ? (
+              <Button key={label} asChild variant="outline" className="h-11 max-w-full whitespace-normal break-all">
+                <a href={href} target={href.startsWith("https:") ? "_blank" : undefined} rel={href.startsWith("https:") ? "noreferrer" : undefined}><Icon />{label}</a>
+              </Button>
+            ) : (
+              <Button key={label} variant="outline" disabled title="Profile link not yet provided" className="h-11"><Icon />LinkedIn · Pending</Button>
+            ))}
           </div>
         </div>
-        <form onSubmit={onSubmit} className="panel reveal space-y-4 p-7">
+        <form onSubmit={onSubmit} className="reveal space-y-4 border-l border-border pl-0 lg:pl-10">
           {[["name", "Name", "text"], ["email", "Email", "email"]].map(([id, label, type]) => (
             <div key={id}>
               <label htmlFor={id} className="mb-1.5 block text-sm font-semibold">{label}</label>
@@ -215,7 +214,7 @@ export function Contact() {
             <label htmlFor="message" className="mb-1.5 block text-sm font-semibold">Message</label>
             <textarea id="message" name="message" rows={5} required className="w-full resize-none rounded-lg border border-input bg-background px-4 py-3 outline-none focus:border-primary" />
           </div>
-          <button type="submit" className="btn-primary w-full justify-center">Send Message</button>
+          <Button type="submit" className="h-12 w-full">Compose Email <ArrowUpRight /></Button>
           {note && <p role="status" className="text-sm text-muted-foreground">{note}</p>}
         </form>
       </div>
@@ -231,7 +230,12 @@ export function Footer() {
           <p className="font-display text-lg font-bold">Kneez Fatima</p>
           <p className="text-sm text-muted-foreground">Data Analyst • Machine Learning • AI</p>
         </div>
-        <p className="text-sm text-muted-foreground">© 2026 Kneez Fatima. All rights reserved.</p>
+        <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+          <a href={`mailto:${CONTACT.email}`} className="hover:text-primary">{CONTACT.email}</a>
+          <a href={`tel:${CONTACT.phone}`} className="hover:text-primary">{CONTACT.phone}</a>
+          <a href={CONTACT.github} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-primary"><Github className="size-4" />GitHub</a>
+          <p className="mt-2">© 2026 Kneez Fatima</p>
+        </div>
       </div>
     </footer>
   );

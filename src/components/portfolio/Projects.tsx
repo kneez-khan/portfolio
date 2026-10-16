@@ -1,27 +1,57 @@
 import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
-import { ArrowUpRight, X } from "lucide-react";
+import { ArrowUpRight, X, House, Users, Smartphone, ChartNoAxesCombined, ScanEye, ScanSearch } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Section } from "./Section";
 import { PROJECTS, type Project } from "@/lib/portfolio-data";
 
+const VISUALS = {
+  lahore: { Icon: House, input: "Property features", output: "Price prediction" },
+  churn: { Icon: Users, input: "Customer features", output: "Churn prediction" },
+  phone: { Icon: Smartphone, input: "Device attributes", output: "Resale estimate" },
+  retail: { Icon: ChartNoAxesCombined, input: "Sales data", output: "Business insights" },
+  violence: { Icon: ScanEye, input: "Video frames", output: "Event summary" },
+  weapon: { Icon: ScanSearch, input: "Query + image", output: "Pistol detection" },
+};
+
+function ProjectVisual({ id }: { id: string }) {
+  const visual = VISUALS[id as keyof typeof VISUALS];
+  if (!visual) return null;
+  const Icon = visual.Icon;
+  return <div className="project-visual relative mb-6 flex h-40 items-center justify-between overflow-hidden rounded-md border border-border px-5" aria-hidden="true">
+    <div className="absolute inset-0 bg-grid opacity-50" />
+    <div className="relative flex h-full flex-col justify-between py-5">
+      <span className="font-mono text-[10px] uppercase text-muted-foreground">{visual.input}</span>
+      <Icon strokeWidth={1} className="size-14 text-primary transition-transform duration-500 group-hover:scale-110" />
+      <span className="font-mono text-[10px] uppercase text-violet">{visual.output}</span>
+    </div>
+    <svg viewBox="0 0 100 110" className="relative h-28 w-24 text-violet" fill="none">
+      <path d="M5 55H32M32 55L55 20H90M32 55H90M32 55L55 90H90" stroke="currentColor" strokeOpacity=".45" />
+      {[20,55,90].map(y => <rect key={y} x="75" y={y-8} width="16" height="16" rx="3" stroke="currentColor" fill="var(--surface)" />)}
+      <circle cx="8" cy="55" r="5" fill="var(--primary)" />
+    </svg>
+  </div>;
+}
+
 function ProjectCard({ p, index, onOpen }: { p: Project; index: number; onOpen: () => void }) {
   return (
-    <article className="panel panel-hover reveal group flex flex-col p-7">
+    <article className="panel panel-hover reveal group flex flex-col p-5">
+      <ProjectVisual id={p.id} />
       <div className="flex items-center justify-between">
         <span className="font-mono text-xs uppercase tracking-widest text-primary">{p.kind}</span>
         <span className="font-mono text-sm text-muted-foreground">{String(index + 1).padStart(2, "0")}</span>
       </div>
-      <h3 className="mt-4 text-xl font-bold uppercase leading-tight">{p.title}</h3>
+      <h3 className="mt-4 text-xl font-semibold leading-snug">{p.title}</h3>
       <p className="mt-3 line-clamp-3 text-muted-foreground">{p.overview}</p>
       <dl className="mt-5 space-y-1.5 text-sm">
         {p.dataset && <div><dt className="inline text-muted-foreground">Dataset: </dt><dd className="inline font-semibold">{p.dataset}</dd></div>}
         <div><dt className="inline text-muted-foreground">Models: </dt><dd className="inline font-semibold">{p.models.join(", ")}</dd></div>
       </dl>
       {p.metrics.length > 0 ? (
-        <div className="mt-5 grid grid-cols-3 gap-2">
+        <div className="mt-5 grid grid-cols-2 gap-2">
           {p.metrics.map((m) => (
-            <div key={m.label} className="rounded-lg border border-border bg-background/60 p-3">
-              <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">{m.label}</p>
+            <div key={m.label} className="border-l border-border px-3 py-1">
+              <p className="font-mono text-[10px] uppercase text-muted-foreground">{m.label}</p>
               <p className="mt-1 font-display text-lg font-bold text-primary">{m.value}</p>
             </div>
           ))}
@@ -34,9 +64,7 @@ function ProjectCard({ p, index, onOpen }: { p: Project; index: number; onOpen: 
       <ul className="mt-5 flex flex-wrap gap-1.5">
         {p.tech.map((t) => <li key={t} className="tag text-xs">{t}</li>)}
       </ul>
-      <button onClick={onOpen} className="mt-auto inline-flex items-center gap-1.5 self-start pt-6 text-sm font-bold tracking-wider text-primary">
-        VIEW PROJECT <ArrowUpRight className="size-4 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-      </button>
+      <Button onClick={onOpen} variant="link" className="mt-5 justify-start self-start px-0">View Project <ArrowUpRight /></Button>
     </article>
   );
 }
@@ -49,17 +77,15 @@ function ProjectModal({ p, onClose }: { p: Project | null; onClose: () => void }
         <Dialog.Content className="panel fixed left-1/2 top-1/2 z-50 max-h-[88vh] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto bg-popover p-7 md:p-9 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95">
           {p && (
             <>
-              <Dialog.Close className="absolute right-4 top-4 rounded-full p-2 text-muted-foreground hover:text-foreground" aria-label="Close">
-                <X className="size-5" />
-              </Dialog.Close>
+              <Dialog.Close asChild><Button variant="ghost" size="icon" className="absolute right-4 top-4" aria-label="Close"><X /></Button></Dialog.Close>
               <p className="eyebrow">{p.kind}</p>
               <Dialog.Title className="mt-2 pr-8 text-2xl font-extrabold uppercase">{p.title}</Dialog.Title>
               <Dialog.Description className="mt-3 leading-relaxed text-muted-foreground">{p.overview}</Dialog.Description>
 
               {p.metrics.length > 0 && (
-                <div className="mt-6 grid grid-cols-3 gap-3">
+                <div className="mt-6 grid grid-cols-2 gap-3">
                   {p.metrics.map((m) => (
-                    <div key={m.label} className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                    <div key={m.label} className="border-l border-primary/30 pl-4 py-2">
                       <p className="font-mono text-[11px] uppercase text-muted-foreground">{m.label}</p>
                       <p className="mt-1 font-display text-xl font-bold text-primary">{m.value}</p>
                     </div>
@@ -67,6 +93,7 @@ function ProjectModal({ p, onClose }: { p: Project | null; onClose: () => void }
                 </div>
               )}
 
+              {p.note && <p className="mt-5 text-sm leading-relaxed text-muted-foreground">{p.note}</p>}
               <div className="mt-6 space-y-5">
                 {p.dataset && <Block title="Dataset"><p>{p.dataset}</p></Block>}
                 <Block title="Models / Algorithms">
@@ -113,7 +140,7 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 export function Projects() {
   const [open, setOpen] = useState<Project | null>(null);
   return (
-    <Section id="projects" eyebrow="04 — Selected work" title="Featured Projects" intro="Machine learning, analytics, and computer vision work — with the real numbers behind each model.">
+    <Section id="projects" eyebrow="04 — Selected work" title="Featured Projects" intro="A selection of predictive modeling, data analysis, and computer vision projects.">
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {PROJECTS.map((p, i) => <ProjectCard key={p.id} p={p} index={i} onOpen={() => setOpen(p)} />)}
       </div>
